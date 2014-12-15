@@ -1,0 +1,23 @@
+{% extends 'base.twig' %}
+
+{% set title='High Scores' %}
+
+{% block body %}
+
+<table>
+    <tr>
+        <th>User Name</th>
+        <th>Length</th>
+        <th>Face</th>
+    </tr>
+    {% for highscore in highresult %}
+        <tr>
+            <td>{{ highscore['username'] }}</td>
+            <td>{{ highscore['length'] }}</td>
+            <td>{{ highscore['face_name'] }}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+
+{% endblock body %}

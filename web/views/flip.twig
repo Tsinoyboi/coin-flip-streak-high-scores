@@ -1,0 +1,10 @@
+{% extends 'base.twig' %}
+
+{% set title='Flip' %}
+
+{% block body %}
+<p>{{ streaklength }} {{ lastflip }}</p>
+<form action="flippate" method="POST">
+<input type="submit" class="btn btn-default" value="Flip">
+</form>
+{% endblock body %}

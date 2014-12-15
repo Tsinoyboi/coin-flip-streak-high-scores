@@ -1,0 +1,7 @@
+parameters:
+    driver  : pdo_mysql
+    host    : localhost
+    dbname  : high_score
+    user    : ~
+    password: ~
+    charset : utf8
