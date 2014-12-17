@@ -31,15 +31,20 @@
             </div>
             <div id="navbar" class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
-                    <li class="active"><a href="./">Home</a></li>
+                    <li {% if title == 'Front' %} class="active" {% endif %}>
+                        <a href="./">Home</a></li>
                     <!-- {% if sessionuser | length > 0 %} -->
-                    <li><a href="#">Signed in as {{ sessionuser }}</a></li>
+                    <li><a href="flip">Signed in as {{ sessionuser }}</a></li>
                     <!-- {% else %} -->
-                    <li><a href="signin">Sign in</a></li>
-                    <li><a href="register">Register</a></li>
+                    <li {% if title == 'Sign in' %} class="active" {% endif %}>
+                        <a href="signin">Sign in</a></li>
+                    <li {% if title == 'Register' %} class="active" {% endif %}>
+                        <a href="register">Register</a></li>
                     <!-- {% endif %} -->
-                    <li><a href="flip">Flip</a></li>
-                    <li><a href="highscores">High Scores</a></li>
+                    <li {% if title == 'Flip' %} class="active" {% endif %}>
+                        <a href="flip">Flip</a></li>
+                    <li {% if title == 'High Scores' %} class="active" {% endif %}>
+                        <a href="highscores">High Scores</a></li>
                     <!-- {% if sessionuser | length > 0 %} -->
                     <li><a href="signout"><small>Sign out</small></a></li>
                     <!-- {% endif %} -->
