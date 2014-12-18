@@ -133,6 +133,13 @@ $app->get('/highscores', function () use ($app) {
 
 $app->get('/profile', function () use ($app) {
     $user = $app['session']->get('user');
+    if ((null === $user) || (false === $user)) {
+        return $app['twig']->render('signin.twig', array(
+            'username' => $username,
+            'sessionuser' => $user['username'],
+            'isValid' => true,
+        ));
+    }
 
     $sql = "SELECT DISTINCT us.username, st.length, fa.name as face_name";
     $sql .= " FROM streak st";
@@ -192,37 +199,36 @@ $app->get('/flip', function () use ($app) {
             'sessionuser' => $user['username'],
             'isValid' => true,
 		));
-    } else {
-        $sql = "SELECT id FROM user WHERE username = ?";
-        $prepared = array(
-            $user['username'],
-        );
-        $userResult = $app['db']->fetchAssoc($sql, $prepared);
-
-        $sql = "SELECT face_id, streak_id FROM flip WHERE user_id = ? ORDER BY time_flipped DESC LIMIT 1";
-        $prepared = array(
-            $userResult['id'],
-        );
-        $flipResult = $app['db']->fetchAssoc($sql, $prepared);
-
-        $sql = "SELECT name FROM face WHERE id = ?";
-        $prepared = array(
-            $flipResult['face_id'],
-        );
-        $faceResult = $app['db']->fetchAssoc($sql, $prepared);
-
-        $sql = "SELECT length FROM streak WHERE id = ?";
-        $prepared = array(
-            $flipResult['streak_id'],
-        );
-        $streakResult = $app['db']->fetchAssoc($sql, $prepared);
-
-        return $app['twig']->render('flip.twig', array(
-            'sessionuser' => $user['username'],
-            'lastflip' => $faceResult['name'],
-            'streaklength' => $streakResult['length'],
-        ));
     }
+    $sql = "SELECT id FROM user WHERE username = ?";
+    $prepared = array(
+        $user['username'],
+    );
+    $userResult = $app['db']->fetchAssoc($sql, $prepared);
+
+    $sql = "SELECT face_id, streak_id FROM flip WHERE user_id = ? ORDER BY time_flipped DESC LIMIT 1";
+    $prepared = array(
+        $userResult['id'],
+    );
+    $flipResult = $app['db']->fetchAssoc($sql, $prepared);
+
+    $sql = "SELECT name FROM face WHERE id = ?";
+    $prepared = array(
+        $flipResult['face_id'],
+    );
+    $faceResult = $app['db']->fetchAssoc($sql, $prepared);
+
+    $sql = "SELECT length FROM streak WHERE id = ?";
+    $prepared = array(
+        $flipResult['streak_id'],
+    );
+    $streakResult = $app['db']->fetchAssoc($sql, $prepared);
+
+    return $app['twig']->render('flip.twig', array(
+        'sessionuser' => $user['username'],
+        'lastflip' => $faceResult['name'],
+        'streaklength' => $streakResult['length'],
+    ));
 });
 
 $app->post('/flippate', function() use($app) {
