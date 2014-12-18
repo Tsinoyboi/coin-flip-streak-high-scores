@@ -33,7 +33,8 @@ $app->get('/', function () use ($app) {
 $app->get('/signin', function () use ($app) {
 	$user = $app['session']->get('user');
     return $app['twig']->render('signin.twig', array(
-    'sessionuser' => $user['username'],
+        'sessionuser' => $user['username'],
+        'isValid' => true,
     ));
 });
 
@@ -47,10 +48,11 @@ $app->post('/authenticate', function (Request $request) use ($app) {
     );
     $userResult = $app['db']->fetchAssoc($sql, $prepared);
     if (false === $userResult) {
-		$user = $app['session']->get('user');
-		return $app['twig']->render('signin.twig', array(
-		    'username' => $username,
+        $user = $app['session']->get('user');
+        return $app['twig']->render('signin.twig', array(
+            'username' => $username,
             'sessionuser' => $user['username'],
+            'isValid' => false,
 		));
 	}
     $app['session']->set('user', array('username' => $username));
@@ -66,7 +68,9 @@ $app->post('/registrate', function (Request $request) use ($app) {
 		return $app['twig']->render('register.twig', array(
             'username' => $username,
             'sessionuser' => $user['username'],
-		));
+            'isConfirmed' => false,
+            'userExists' => false,
+        ));
 	}
 	$sql = "SELECT id FROM user WHERE username = ?";
     $prepared = array(
@@ -89,14 +93,18 @@ $app->post('/registrate', function (Request $request) use ($app) {
         return $app['twig']->render('register.twig', array(
             'username' => $username,
             'sessionuser' => $user['username'],
-		));
+            'isConfirmed' => true,
+            'userExists' => true,
+        ));
 	}
 });
 
 $app->get('/register', function () use ($app) {
     $user = $app['session']->get('user');
     return $app['twig']->render('register.twig', array(
-    'sessionuser' => $user['username'],
+        'sessionuser' => $user['username'],
+        'isConfirmed' => true,
+        'userExists' => false,
     ));
 });
 
