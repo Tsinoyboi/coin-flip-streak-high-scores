@@ -88,6 +88,7 @@ $app->post('/registrate', function (Request $request) use ($app) {
         return $app['twig']->render('signin.twig', array(
 		    'username' => $username,
             'sessionuser' => $user['username'],
+            'isValid' => true;
 		));
     } else {
         return $app['twig']->render('register.twig', array(
