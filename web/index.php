@@ -125,7 +125,7 @@ $app->get('/highscores', function () use ($app) {
 
 $app->get('/flip', function () use ($app) {
 	$user = $app['session']->get('user');
-    if (false === $user) {
+    if ((null === $user) || (false === $user)) {
 		return $app['twig']->render('signin.twig', array(
             'username' => $username,
             'sessionuser' => $user['username'],
@@ -164,71 +164,79 @@ $app->get('/flip', function () use ($app) {
 });
 
 $app->post('/flippate', function() use($app) {
-	$coin = mt_rand(0, 1);
-	if (0 === $coin) {
-		$faceName = 'tails';
-	} else {
-		$faceName = 'heads';
-	}
-	$sql = "SELECT id FROM face WHERE name = ?";
-    $prepared = array(
-        $faceName,
-    );
-    $faceResult = $app['db']->fetchAssoc($sql, $prepared);
-
     $user = $app['session']->get('user');
-
-    $sql = "SELECT id FROM user WHERE username = ?";
-    $prepared = array(
-        $user['username'],
-    );
-    $userResult = $app['db']->fetchAssoc($sql, $prepared);
-
-    $sql = "SELECT * FROM flip WHERE user_id = ? ORDER BY time_flipped DESC LIMIT 1";
-    $prepared = array(
-        $userResult['id'],
-    );
-    $flipResult = $app['db']->fetchAssoc($sql, $prepared);
-
-    if ((false === $flipResult) || ($flipResult['face_id'] !== $faceResult['id'])) {
-		// start a new streak
-
-		$sql = "INSERT INTO streak (user_id, face_id, length) VALUES (?, ?, ?)";
-		$prepared = array(
-			$userResult['id'],
-			$faceResult['id'],
-			1,
-		);
-		$app['db']->executeUpdate($sql, $prepared);
-		$streakId = $app['db']->lastInsertId();
-
+    if ((null === $user) || (false === $user)) {
+        return $app['twig']->render('signin.twig', array(
+            'username' => $username,
+            'sessionuser' => $user['username'],
+        ));
     } else {
-	    // make the streak longer
-		$streakId = $flipResult['streak_id'];
-		$sql = "SELECT length FROM streak WHERE id = ?";
-		$prepared = array(
-			$streakId,
-		);
-		$streakResult = $app['db']->fetchAssoc($sql, $prepared);
-		$sql = "UPDATE streak SET length = ? WHERE id = ?";
-	    $prepared = array(
-            $streakResult['length'] + 1,
+        $coin = mt_rand(0, 1);
+    	if (0 === $coin) {
+    		$faceName = 'tails';
+    	} else {
+    		$faceName = 'heads';
+    	}
+    	$sql = "SELECT id FROM face WHERE name = ?";
+        $prepared = array(
+            $faceName,
+        );
+        $faceResult = $app['db']->fetchAssoc($sql, $prepared);
+
+        $user = $app['session']->get('user');
+
+        $sql = "SELECT id FROM user WHERE username = ?";
+        $prepared = array(
+            $user['username'],
+        );
+        $userResult = $app['db']->fetchAssoc($sql, $prepared);
+
+        $sql = "SELECT * FROM flip WHERE user_id = ? ORDER BY time_flipped DESC LIMIT 1";
+        $prepared = array(
+            $userResult['id'],
+        );
+        $flipResult = $app['db']->fetchAssoc($sql, $prepared);
+
+        if ((false === $flipResult) || ($flipResult['face_id'] !== $faceResult['id'])) {
+    		// start a new streak
+
+    		$sql = "INSERT INTO streak (user_id, face_id, length) VALUES (?, ?, ?)";
+    		$prepared = array(
+    			$userResult['id'],
+    			$faceResult['id'],
+    			1,
+    		);
+    		$app['db']->executeUpdate($sql, $prepared);
+    		$streakId = $app['db']->lastInsertId();
+
+        } else {
+    	    // make the streak longer
+    		$streakId = $flipResult['streak_id'];
+    		$sql = "SELECT length FROM streak WHERE id = ?";
+    		$prepared = array(
+    			$streakId,
+    		);
+    		$streakResult = $app['db']->fetchAssoc($sql, $prepared);
+    		$sql = "UPDATE streak SET length = ? WHERE id = ?";
+    	    $prepared = array(
+                $streakResult['length'] + 1,
+                $streakId,
+            );
+            $app['db']->executeUpdate($sql, $prepared);
+        }
+    	// new flip and attach to streak*/
+    	$sql = "INSERT INTO flip (user_id, face_id, streak_id, time_flipped) VALUES (?, ?, ?, ?)";
+    	$now = new \DateTime();
+    	$prepared = array(
+            $userResult['id'],
+            $faceResult['id'],
             $streakId,
+            $now->format('Y-m-d H:i:s'),
         );
         $app['db']->executeUpdate($sql, $prepared);
-    }
-	// new flip and attach to streak*/
-	$sql = "INSERT INTO flip (user_id, face_id, streak_id, time_flipped) VALUES (?, ?, ?, ?)";
-	$now = new \DateTime();
-	$prepared = array(
-        $userResult['id'],
-        $faceResult['id'],
-        $streakId,
-        $now->format('Y-m-d H:i:s'),
-    );
-    $app['db']->executeUpdate($sql, $prepared);
 
-    return $app->redirect('./flip');
+        return $app->redirect('./flip');
+    }
 });
 
 $app->get('/signout', function () use ($app) {
