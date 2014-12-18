@@ -4,37 +4,33 @@
 
 {% block body %}
 
-Authorized access only
-<br />
-
-
 <form class="form-horizontal" role="form" action="authenticate" method="POST">
-<div class="form-group">
-	<label for="inputEmail3" class="col-sm-2 control-label">Username</label>
+<div class="form-group {% if false %} has-error {% endif %} has-feedback">
+	<label for="username" class="col-sm-2 control-label">Username</label>
 	<div class="col-sm-10">
-	<input type="text" class="form-control" id="username" placeholder="Enter Username" name="username" {% if username is defined %} value="{{ username }}" {% endif %} />
+		<input type="text" class="form-control" id="username" placeholder="Enter Username" name="username" {% if username is defined %} value="{{ username }}" {% endif %} />
+		{% if false %}
+		<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+		<span id="inputWarning2Status" class="sr-only">(warning)</span>
+		{% endif %}
 	</div>
 </div>
-<div class="form-group">
-	<label for="inputPassword3" class="col-sm-2 control-label">Password</label>
+<div class="form-group {% if false %} has-error {% endif %} has-feedback">
+	<label for="password" class="col-sm-2 control-label">Password</label>
 	<div class="col-sm-10">
-	<input type="password" class="form-control" id="password" placeholder="Enter Password" name="password" />
+		<input type="password" class="form-control" id="password" placeholder="Enter Password" name="password" />
+		{% if false %}
+		<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+		<span id="inputWarning2Status" class="sr-only">(warning)</span>
+		{% endif %}
 	</div>
 </div>
-<div class="form-group">
-	<div class="col-sm-offset-2 col-sm-10">
-	<div class="checkbox">
-		<label>
-		<input type="checkbox"> Remember me
-		</label>
-	</div>
-	</div>
-</div>
-<div class="form-group">
+<div class="form-group has-error has-feedback">
 	<div class="col-sm-offset-2 col-sm-10">
 	<button type="submit" class="btn btn-default">Sign in</button>
 	</div>
 </div>
+
 </form>
 
 {% endblock body %}
