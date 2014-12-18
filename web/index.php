@@ -146,11 +146,41 @@ $app->get('/profile', function () use ($app) {
     $prepared = array(
     );
 
-    $highResult = $app['db']->fetchAll($sql, $prepared);
+    $recentFlipResult = $app['db']->fetchAll($sql, $prepared);
+
+    $sql = "SELECT DISTINCT us.username, st.length, fa.name as face_name";
+    $sql .= " FROM streak st";
+    $sql .= " JOIN user us";
+    $sql .= " ON st.user_id = us.id";
+    $sql .= " JOIN face fa";
+    $sql .= " ON st.face_id = fa.id";
+    $sql .= " ORDER BY length DESC";
+    $sql .= " LIMIT 10";
+
+    $prepared = array(
+    );
+
+    $recentStreakResult = $app['db']->fetchAll($sql, $prepared);
+
+    $sql = "SELECT DISTINCT us.username, st.length, fa.name as face_name";
+    $sql .= " FROM streak st";
+    $sql .= " JOIN user us";
+    $sql .= " ON st.user_id = us.id";
+    $sql .= " JOIN face fa";
+    $sql .= " ON st.face_id = fa.id";
+    $sql .= " ORDER BY length DESC";
+    $sql .= " LIMIT 10";
+
+    $prepared = array(
+    );
+
+    $bestStreakResult = $app['db']->fetchAll($sql, $prepared);
 
     return $app['twig']->render('profile.twig', array(
         'sessionuser' => $user['username'],
-        'highresult' => $highResult,
+        'recentFlipResult' => $recentFlipResult,
+        'recentStreakResult' => $recentStreakResult,
+        'bestStreakResult' => $bestStreakResult,
     ));
 });
 

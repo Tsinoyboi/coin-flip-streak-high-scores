@@ -1,6 +1,6 @@
 {% extends 'base.twig' %}
 
-{% set title=sessionuser ~ ' - Profile' %}
+{% set title=sessionuser~' - Profile' %}
 
 {% block body %}
 
@@ -13,11 +13,11 @@
                 <th>Length</th>
                 <th>Face</th>
             </tr>
-            {% for highscore in highresult %}
+            {% for recentFlipResult in recentFlipResult %}
                 <tr>
-                    <td>{{ highscore['username'] }}</td>
-                    <td>{{ highscore['length'] }}</td>
-                    <td>{{ highscore['face_name'] }}</td>
+                    <td>{{ recentFlipResult['username'] }}</td>
+                    <td>{{ recentFlipResult['length'] }}</td>
+                    <td>{{ recentFlipResult['face_name'] }}</td>
                 </tr>
             {% endfor %}
         </table>
@@ -30,11 +30,11 @@
                 <th>Length</th>
                 <th>Face</th>
             </tr>
-            {% for highscore in highresult %}
+            {% for recentStreakResult in recentStreakResult %}
             <tr>
-                <td>{{ highscore['username'] }}</td>
-                <td>{{ highscore['length'] }}</td>
-                <td>{{ highscore['face_name'] }}</td>
+                <td>{{ recentStreakResult['username'] }}</td>
+                <td>{{ recentStreakResult['length'] }}</td>
+                <td>{{ recentStreakResult['face_name'] }}</td>
             </tr>
             {% endfor %}
         </table>
@@ -47,11 +47,11 @@
                 <th>Length</th>
                 <th>Face</th>
             </tr>
-            {% for highscore in highresult %}
+            {% for bestStreakResult in bestStreakResult %}
             <tr>
-                <td>{{ highscore['username'] }}</td>
-                <td>{{ highscore['length'] }}</td>
-                <td>{{ highscore['face_name'] }}</td>
+                <td>{{ bestStreakResult['username'] }}</td>
+                <td>{{ bestStreakResult['length'] }}</td>
+                <td>{{ bestStreakResult['face_name'] }}</td>
             </tr>
             {% endfor %}
         </table>
