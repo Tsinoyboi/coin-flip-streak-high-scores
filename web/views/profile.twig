@@ -1,11 +1,11 @@
 {% extends 'base.twig' %}
 
-{% set title=sessionuser~' - Profile' %}
+{% set title=sessionuser %}
 
 {% block body %}
 
 <h2>{{sessionuser}}'s activity</h2>
-<div class="row">
+<div class="row text-center">
     <div class="col-md-4">
         <h3>{{sessionuser}}'s recent flips</h3>
         <table class="table table-striped table-bordered table-hover">
