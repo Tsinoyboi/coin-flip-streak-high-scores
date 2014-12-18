@@ -40,6 +40,24 @@
 			<button type="submit" class="btn btn-default">Register</button>
 		</div>
 	</div>
+	{% if not isConfirmed %}
+	<div class="form-group has-feedback">
+		<label class="col-sm-2 control-label"></label>
+		<div class="alert alert-danger col-sm-10" role="alert">
+			Registration was unsuccessful.
+			<br />Passwords do not match. Please correct the errors and try again.
+		</div>
+	</div>
+	{% endif %}
+	{% if userExists %}
+	<div class="form-group has-feedback">
+		<label class="col-sm-2 control-label"></label>
+		<div class="alert alert-danger col-sm-10" role="alert">
+			Registration was unsuccessful.
+			<br />Cannot use that username. Please correct the errors and try again.
+		</div>
+	</div>
+{% endif %}
 </form>
 
 {% endblock body %}

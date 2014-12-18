@@ -137,6 +137,7 @@ $app->get('/flip', function () use ($app) {
 		return $app['twig']->render('signin.twig', array(
             'username' => $username,
             'sessionuser' => $user['username'],
+            'isValid' => true,
 		));
     } else {
         $sql = "SELECT id FROM user WHERE username = ?";
