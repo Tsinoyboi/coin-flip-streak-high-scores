@@ -1,0 +1,61 @@
+{% extends 'base.twig' %}
+
+{% set title=sessionuser ~ ' - Profile' %}
+
+{% block body %}
+
+<div class="row">
+    <div class="col-md-4">
+        <h2>Recent Flips</h2>
+        <table class="table table-striped table-bordered table-hover">
+            <tr>
+                <th>User Name</th>
+                <th>Length</th>
+                <th>Face</th>
+            </tr>
+            {% for highscore in highresult %}
+                <tr>
+                    <td>{{ highscore['username'] }}</td>
+                    <td>{{ highscore['length'] }}</td>
+                    <td>{{ highscore['face_name'] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="col-md-4">
+        <h2>Recent Streaks</h2>
+        <table class="table table-striped table-bordered table-hover">
+            <tr>
+                <th>User Name</th>
+                <th>Length</th>
+                <th>Face</th>
+            </tr>
+            {% for highscore in highresult %}
+            <tr>
+                <td>{{ highscore['username'] }}</td>
+                <td>{{ highscore['length'] }}</td>
+                <td>{{ highscore['face_name'] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="col-md-4">
+        <h2>Best Streaks</h2>
+        <table class="table table-striped table-bordered table-hover">
+            <tr>
+                <th>User Name</th>
+                <th>Length</th>
+                <th>Face</th>
+            </tr>
+            {% for highscore in highresult %}
+            <tr>
+                <td>{{ highscore['username'] }}</td>
+                <td>{{ highscore['length'] }}</td>
+                <td>{{ highscore['face_name'] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+{% endblock body %}

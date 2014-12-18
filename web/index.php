@@ -131,6 +131,29 @@ $app->get('/highscores', function () use ($app) {
     ));
 });
 
+$app->get('/profile', function () use ($app) {
+    $user = $app['session']->get('user');
+
+    $sql = "SELECT DISTINCT us.username, st.length, fa.name as face_name";
+    $sql .= " FROM streak st";
+    $sql .= " JOIN user us";
+    $sql .= " ON st.user_id = us.id";
+    $sql .= " JOIN face fa";
+    $sql .= " ON st.face_id = fa.id";
+    $sql .= " ORDER BY length DESC";
+    $sql .= " LIMIT 10";
+
+    $prepared = array(
+    );
+
+    $highResult = $app['db']->fetchAll($sql, $prepared);
+
+    return $app['twig']->render('profile.twig', array(
+        'sessionuser' => $user['username'],
+        'highresult' => $highResult,
+    ));
+});
+
 $app->get('/flip', function () use ($app) {
 	$user = $app['session']->get('user');
     if ((null === $user) || (false === $user)) {
