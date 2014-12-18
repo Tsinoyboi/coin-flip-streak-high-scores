@@ -4,35 +4,34 @@
 
 {% block body %}
 
+<h2>{{sessionuser}}'s activity</h2>
 <div class="row">
     <div class="col-md-4">
-        <h2>Recent Flips</h2>
+        <h3>{{sessionuser}}'s recent flips</h3>
         <table class="table table-striped table-bordered table-hover">
             <tr>
-                <th>User Name</th>
-                <th>Length</th>
+                <th>Time</th>
                 <th>Face</th>
             </tr>
             {% for recentFlipResult in recentFlipResult %}
                 <tr>
-                    <td>{{ recentFlipResult['username'] }}</td>
-                    <td>{{ recentFlipResult['length'] }}</td>
+                    <td>{{ recentFlipResult['time_flipped'] }}</td>
                     <td>{{ recentFlipResult['face_name'] }}</td>
                 </tr>
             {% endfor %}
         </table>
     </div>
     <div class="col-md-4">
-        <h2>Recent Streaks</h2>
+        <h3>{{sessionuser}}'s recent streaks</h3>
         <table class="table table-striped table-bordered table-hover">
             <tr>
-                <th>User Name</th>
+                <th>Time</th>
                 <th>Length</th>
                 <th>Face</th>
             </tr>
             {% for recentStreakResult in recentStreakResult %}
             <tr>
-                <td>{{ recentStreakResult['username'] }}</td>
+                <td>{{ recentStreakResult['time_flipped'] }}</td>
                 <td>{{ recentStreakResult['length'] }}</td>
                 <td>{{ recentStreakResult['face_name'] }}</td>
             </tr>
@@ -40,16 +39,14 @@
         </table>
     </div>
     <div class="col-md-4">
-        <h2>Best Streaks</h2>
+        <h3>{{sessionuser}}'s best streaks</h3>
         <table class="table table-striped table-bordered table-hover">
             <tr>
-                <th>User Name</th>
                 <th>Length</th>
                 <th>Face</th>
             </tr>
             {% for bestStreakResult in bestStreakResult %}
             <tr>
-                <td>{{ bestStreakResult['username'] }}</td>
                 <td>{{ bestStreakResult['length'] }}</td>
                 <td>{{ bestStreakResult['face_name'] }}</td>
             </tr>

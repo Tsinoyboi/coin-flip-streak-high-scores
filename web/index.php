@@ -141,44 +141,53 @@ $app->get('/profile', function () use ($app) {
         ));
     }
 
-    $sql = "SELECT DISTINCT us.username, st.length, fa.name as face_name";
-    $sql .= " FROM streak st";
+    $sql = "SELECT fl.time_flipped, fa.name as face_name";
+    $sql .= " FROM flip fl";
     $sql .= " JOIN user us";
-    $sql .= " ON st.user_id = us.id";
+    $sql .= " ON fl.user_id = us.id";
     $sql .= " JOIN face fa";
-    $sql .= " ON st.face_id = fa.id";
-    $sql .= " ORDER BY length DESC";
+    $sql .= " ON fl.face_id = fa.id";
+    $sql .= " WHERE username = ?";
+    $sql .= " ORDER BY time_flipped DESC";
     $sql .= " LIMIT 10";
 
     $prepared = array(
+        $user['username']
     );
 
     $recentFlipResult = $app['db']->fetchAll($sql, $prepared);
 
-    $sql = "SELECT DISTINCT us.username, st.length, fa.name as face_name";
-    $sql .= " FROM streak st";
+    $sql = "SELECT DISTINCT st.id, fl.time_flipped, us.username, st.length, fa.name as face_name";
+    $sql .= " FROM flip fl";
+    $sql .= " JOIN streak st";
+    $sql .= " ON fl.streak_id = st.id";
     $sql .= " JOIN user us";
-    $sql .= " ON st.user_id = us.id";
+    $sql .= " ON fl.user_id = us.id";
     $sql .= " JOIN face fa";
-    $sql .= " ON st.face_id = fa.id";
-    $sql .= " ORDER BY length DESC";
+    $sql .= " ON fl.face_id = fa.id";
+    $sql .= " WHERE username = ?";
+    $sql .= " GROUP BY st.id";
+    $sql .= " ORDER BY time_flipped DESC";
     $sql .= " LIMIT 10";
 
     $prepared = array(
+        $user['username']
     );
 
     $recentStreakResult = $app['db']->fetchAll($sql, $prepared);
 
-    $sql = "SELECT DISTINCT us.username, st.length, fa.name as face_name";
+    $sql = "SELECT DISTINCT st.length, fa.name as face_name";
     $sql .= " FROM streak st";
     $sql .= " JOIN user us";
     $sql .= " ON st.user_id = us.id";
     $sql .= " JOIN face fa";
     $sql .= " ON st.face_id = fa.id";
+    $sql .= " WHERE username = ?";
     $sql .= " ORDER BY length DESC";
     $sql .= " LIMIT 10";
 
     $prepared = array(
+        $user['username']
     );
 
     $bestStreakResult = $app['db']->fetchAll($sql, $prepared);
