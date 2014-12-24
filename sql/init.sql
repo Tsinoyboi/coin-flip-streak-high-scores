@@ -36,7 +36,6 @@ CREATE TABLE IF NOT EXISTS streak
     id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     user_id BIGINT(20) UNSIGNED NOT NULL,
     face_id BIGINT(20) UNSIGNED NOT NULL,
-    length INT(11) NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY (id),
     FOREIGN KEY (user_id) REFERENCES user (id),
@@ -46,13 +45,9 @@ CREATE TABLE IF NOT EXISTS streak
 CREATE TABLE IF NOT EXISTS flip
 (
     id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-    user_id BIGINT(20) UNSIGNED NOT NULL,
-    face_id BIGINT(20) UNSIGNED NOT NULL,
     streak_id BIGINT(20) UNSIGNED NOT NULL,
     time_flipped DATETIME NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY (id),
-    FOREIGN KEY (user_id) REFERENCES user (id),
-    FOREIGN KEY (face_id) REFERENCES face (id),
     FOREIGN KEY (streak_id) REFERENCES streak (id)
 ) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci;
