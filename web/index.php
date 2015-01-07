@@ -210,34 +210,37 @@ $app->get('/flip', function () use ($app) {
             'isValid' => true,
 		));
     }
-    $sql = "SELECT id FROM user WHERE username = ?";
-    $prepared = array(
-        $user['username'],
-    );
-    $userResult = $app['db']->fetchAssoc($sql, $prepared);
+    $sql = "SELECT COUNT(*) AS length, fa.name AS face_name";
+    $sql .= " FROM";
+    $sql .= " (";
+    $sql .= " SELECT st.id";
+    $sql .= " FROM user us";
+    $sql .= " LEFT JOIN streak st";
+    $sql .= " ON st.user_id = us.id";
+    $sql .= " LEFT JOIN flip fl";
+    $sql .= " ON fl.streak_id = st.id";
+    $sql .= " WHERE us.username = ?";
+    $sql .= " ORDER BY fl.time_flipped DESC";
+    $sql .= " LIMIT 1";
+    $sql .= " ) stid";
+    $sql .= " JOIN streak st";
+    $sql .= " ON st.id = stid.id";
+    $sql .= " JOIN face fa";
+    $sql .= " ON fa.id = st.face_id";
+    $sql .= " JOIN flip fl";
+    $sql .= " ON fl.streak_id = st.id";
+    $sql .= " GROUP BY fa.name";
 
-    $sql = "SELECT face_id, streak_id FROM flip WHERE user_id = ? ORDER BY time_flipped DESC LIMIT 1";
     $prepared = array(
-        $userResult['id'],
+        $user['username']
     );
-    $flipResult = $app['db']->fetchAssoc($sql, $prepared);
 
-    $sql = "SELECT name FROM face WHERE id = ?";
-    $prepared = array(
-        $flipResult['face_id'],
-    );
-    $faceResult = $app['db']->fetchAssoc($sql, $prepared);
-
-    $sql = "SELECT length FROM streak WHERE id = ?";
-    $prepared = array(
-        $flipResult['streak_id'],
-    );
-    $streakResult = $app['db']->fetchAssoc($sql, $prepared);
+    $result = $app['db']->fetchAssoc($sql, $prepared);
 
     return $app['twig']->render('flip.twig', array(
         'sessionuser' => $user['username'],
-        'lastflip' => $faceResult['name'],
-        'streaklength' => $streakResult['length'],
+        'lastflip' => $result['face_name'],
+        'streaklength' => $result['length'],
     ));
 });
 
