@@ -24,14 +24,14 @@ $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
 ));
 
 $app->get('/', function () use ($app) {
-	$user = $app['session']->get('user');
-	return $app['twig']->render('front.twig', array(
+    $user = $app['session']->get('user');
+    return $app['twig']->render('front.twig', array(
     'sessionuser' => $user['username'],
     ));
 })->bind('front');
 
 $app->get('/signin', function () use ($app) {
-	$user = $app['session']->get('user');
+    $user = $app['session']->get('user');
     return $app['twig']->render('signin.twig', array(
         'sessionuser' => $user['username'],
         'isValid' => true,
@@ -39,8 +39,8 @@ $app->get('/signin', function () use ($app) {
 });
 
 $app->post('/authenticate', function (Request $request) use ($app) {
-	$username = $request->get('username');
-	$password = $request->get('password');
+    $username = $request->get('username');
+    $password = $request->get('password');
     $sql = "SELECT id FROM user WHERE username = ? AND password = ?";
     $prepared = array(
         $username,
@@ -53,43 +53,43 @@ $app->post('/authenticate', function (Request $request) use ($app) {
             'username' => $username,
             'sessionuser' => $user['username'],
             'isValid' => false,
-		));
-	}
+        ));
+    }
     $app['session']->set('user', array('username' => $username));
     return $app->redirect('./flip');
 });
 
 $app->post('/registrate', function (Request $request) use ($app) {
-	$username = $request->get('username');
-	$password = $request->get('password');
+    $username = $request->get('username');
+    $password = $request->get('password');
     $confirm = $request->get('confirm');
     if ($password !== $confirm) {
         $user = $app['session']->get('user');
-		return $app['twig']->render('register.twig', array(
+        return $app['twig']->render('register.twig', array(
             'username' => $username,
             'sessionuser' => $user['username'],
             'isConfirmed' => false,
             'userExists' => false,
         ));
-	}
-	$sql = "SELECT id FROM user WHERE username = ?";
+    }
+    $sql = "SELECT id FROM user WHERE username = ?";
     $prepared = array(
         $username,
     );
     $userResult = $app['db']->fetchAssoc($sql, $prepared);
     $user = $app['session']->get('user');
-	if (false === $userResult) {
-		$sql = "INSERT INTO user (username, password) VALUES (?, ?)";
-	    $prepared = array(
+    if (false === $userResult) {
+        $sql = "INSERT INTO user (username, password) VALUES (?, ?)";
+        $prepared = array(
             $username,
             $password,
         );
         $app['db']->executeUpdate($sql, $prepared);
         return $app['twig']->render('signin.twig', array(
-		    'username' => $username,
+            'username' => $username,
             'sessionuser' => $user['username'],
             'isValid' => true,
-		));
+        ));
     } else {
         return $app['twig']->render('register.twig', array(
             'username' => $username,
@@ -97,7 +97,7 @@ $app->post('/registrate', function (Request $request) use ($app) {
             'isConfirmed' => true,
             'userExists' => true,
         ));
-	}
+    }
 });
 
 $app->get('/register', function () use ($app) {
@@ -154,7 +154,7 @@ $app->get('/profile', function () use ($app) {
     $sql .= " JOIN face fa";
     $sql .= " ON st.face_id = fa.id";
     $sql .= " WHERE username = ?";
-    $sql .= " ORDER BY time_flipped DESC";
+    $sql .= " ORDER BY fl.time_flipped DESC";
     $sql .= " LIMIT 10";
 
     $prepared = array(
@@ -173,7 +173,7 @@ $app->get('/profile', function () use ($app) {
     $sql .= " ON st.face_id = fa.id";
     $sql .= " WHERE us.username = ?";
     $sql .= " GROUP BY st.id";
-    $sql .= " ORDER BY time_flipped DESC";
+    $sql .= " ORDER BY fl.time_flipped DESC";
     $sql .= " LIMIT 10";
 
     $prepared = array(
@@ -210,13 +210,13 @@ $app->get('/profile', function () use ($app) {
 });
 
 $app->get('/flip', function () use ($app) {
-	$user = $app['session']->get('user');
+    $user = $app['session']->get('user');
     if ((null === $user) || (false === $user)) {
-		return $app['twig']->render('signin.twig', array(
+        return $app['twig']->render('signin.twig', array(
             'username' => $username,
             'sessionuser' => $user['username'],
             'isValid' => true,
-		));
+        ));
     }
     $sql = "SELECT COUNT(*) AS length, fa.name AS face_name";
     $sql .= " FROM";
@@ -261,12 +261,12 @@ $app->post('/flippate', function() use($app) {
         ));
     } else {
         $coin = mt_rand(0, 1);
-    	if (0 === $coin) {
-    		$faceName = 'tails';
-    	} else {
-    		$faceName = 'heads';
-    	}
-    	$sql = "SELECT id FROM face WHERE name = ?";
+        if (0 === $coin) {
+            $faceName = 'tails';
+        } else {
+            $faceName = 'heads';
+        }
+        $sql = "SELECT id FROM face WHERE name = ?";
         $prepared = array(
             $faceName,
         );
@@ -274,11 +274,15 @@ $app->post('/flippate', function() use($app) {
 
         $user = $app['session']->get('user');
 
+        // Get id associated with username
+
         $sql = "SELECT id FROM user WHERE username = ?";
         $prepared = array(
             $user['username'],
         );
         $userResult = $app['db']->fetchAssoc($sql, $prepared);
+
+        // Get most recent flip associated with user ID
 
         $sql = "SELECT * FROM flip WHERE user_id = ? ORDER BY time_flipped DESC LIMIT 1";
         $prepared = array(
@@ -287,36 +291,38 @@ $app->post('/flippate', function() use($app) {
         $flipResult = $app['db']->fetchAssoc($sql, $prepared);
 
         if ((false === $flipResult) || ($flipResult['face_id'] !== $faceResult['id'])) {
-    		// start a new streak
 
-    		$sql = "INSERT INTO streak (user_id, face_id, length) VALUES (?, ?, ?)";
-    		$prepared = array(
-    			$userResult['id'],
-    			$faceResult['id'],
-    			1,
-    		);
-    		$app['db']->executeUpdate($sql, $prepared);
-    		$streakId = $app['db']->lastInsertId();
+            // start a new streak
+
+            $sql = "INSERT INTO streak (user_id, face_id, length) VALUES (?, ?, ?)";
+            $prepared = array(
+                $userResult['id'],
+                $faceResult['id'],
+                1,
+            );
+            $app['db']->executeUpdate($sql, $prepared);
+            $streakId = $app['db']->lastInsertId();
 
         } else {
-    	    // make the streak longer
-    		$streakId = $flipResult['streak_id'];
-    		$sql = "SELECT length FROM streak WHERE id = ?";
-    		$prepared = array(
-    			$streakId,
-    		);
-    		$streakResult = $app['db']->fetchAssoc($sql, $prepared);
-    		$sql = "UPDATE streak SET length = ? WHERE id = ?";
-    	    $prepared = array(
+            // make the streak longer
+            $streakId = $flipResult['streak_id'];
+            $sql = "SELECT length FROM streak WHERE id = ?";
+            $prepared = array(
+                $streakId,
+            );
+            $streakResult = $app['db']->fetchAssoc($sql, $prepared);
+            $sql = "UPDATE streak SET length = ? WHERE id = ?";
+            $prepared = array(
                 $streakResult['length'] + 1,
                 $streakId,
             );
             $app['db']->executeUpdate($sql, $prepared);
         }
-    	// new flip and attach to streak*/
-    	$sql = "INSERT INTO flip (user_id, face_id, streak_id, time_flipped) VALUES (?, ?, ?, ?)";
-    	$now = new \DateTime();
-    	$prepared = array(
+
+        // new flip and attach to streak*/
+        $sql = "INSERT INTO flip (user_id, face_id, streak_id, time_flipped) VALUES (?, ?, ?, ?)";
+        $now = new \DateTime();
+        $prepared = array(
             $userResult['id'],
             $faceResult['id'],
             $streakId,
@@ -329,7 +335,7 @@ $app->post('/flippate', function() use($app) {
 });
 
 $app->get('/signout', function () use ($app) {
-	$app['session']->set('user', false);
+    $app['session']->set('user', false);
     return $app->redirect('./');
 });
 

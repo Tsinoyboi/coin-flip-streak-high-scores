@@ -7,11 +7,12 @@ ON fl.user_id = us.id
 JOIN face fa
 ON fl.face_id = fa.id
 WHERE username = ?
-ORDER BY time_flipped DESC
+ORDER BY fl.time_flipped DESC
 LIMIT 10
 
 
 -- new recent flips SELECT fl.time_flipped, fa.name as face_name
+SELECT fl.time_flipped, fa.name as face_name
 FROM flip fl
 JOIN streak st
 ON fl.streak_id = st.id
@@ -20,7 +21,7 @@ ON st.user_id = us.id
 JOIN face fa
 ON st.face_id = fa.id
 WHERE username = 'b'
-ORDER BY time_flipped DESC
+ORDER BY fl.time_flipped DESC
 LIMIT 10
 
 # recent streaks
@@ -35,7 +36,7 @@ JOIN face fa
 ON fl.face_id = fa.id
 WHERE us.username = 'john'
 GROUP BY st.id
-ORDER BY length DESC
+ORDER BY fl.length DESC
 LIMIT 10
 
 -- new recent streaks
@@ -50,7 +51,7 @@ JOIN face fa
 ON st.face_id = fa.id
 WHERE us.username = 'b'
 GROUP BY st.id
-ORDER BY time_flipped DESC
+ORDER BY fl.time_flipped DESC
 LIMIT 10
 
 # user last flip
@@ -64,7 +65,7 @@ ON st.user_id = us.id
 JOIN face fa
 ON st.face_id = fa.id
 WHERE us.username = "a"
-ORDER BY time_flipped DESC
+ORDER BY fl.time_flipped DESC
 LIMIT 1
 
 -- user last flip name and count
