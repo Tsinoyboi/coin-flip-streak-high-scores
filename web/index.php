@@ -112,12 +112,15 @@ $app->get('/register', function () use ($app) {
 $app->get('/highscores', function () use ($app) {
     $user = $app['session']->get('user');
 
-    $sql = "SELECT DISTINCT us.username, st.length, fa.name as face_name";
-    $sql .= " FROM streak st";
+    $sql = "SELECT us.username, count(*) as length, fa.name as face_name";
+    $sql .= " FROM flip fl";
+    $sql .= " JOIN streak st";
+    $sql .= " ON st.id = fl.streak_id";
     $sql .= " JOIN user us";
-    $sql .= " ON st.user_id = us.id";
+    $sql .= " ON us.id = st.user_id";
     $sql .= " JOIN face fa";
-    $sql .= " ON st.face_id = fa.id";
+    $sql .= " ON fa.id = st.face_id";
+    $sql .= " GROUP BY st.id";
     $sql .= " ORDER BY length DESC";
     $sql .= " LIMIT 10";
 
@@ -144,10 +147,12 @@ $app->get('/profile', function () use ($app) {
 
     $sql = "SELECT fl.time_flipped, fa.name as face_name";
     $sql .= " FROM flip fl";
+    $sql .= " JOIN streak st";
+    $sql .= " ON fl.streak_id = st.id";
     $sql .= " JOIN user us";
-    $sql .= " ON fl.user_id = us.id";
+    $sql .= " ON st.user_id = us.id";
     $sql .= " JOIN face fa";
-    $sql .= " ON fl.face_id = fa.id";
+    $sql .= " ON st.face_id = fa.id";
     $sql .= " WHERE username = ?";
     $sql .= " ORDER BY time_flipped DESC";
     $sql .= " LIMIT 10";
@@ -158,15 +163,15 @@ $app->get('/profile', function () use ($app) {
 
     $recentFlipResult = $app['db']->fetchAll($sql, $prepared);
 
-    $sql = "SELECT DISTINCT st.id, fl.time_flipped, us.username, st.length, fa.name as face_name";
+    $sql = "SELECT fl.time_flipped, count(*) as length, fa.name as face_name";
     $sql .= " FROM flip fl";
     $sql .= " JOIN streak st";
     $sql .= " ON fl.streak_id = st.id";
     $sql .= " JOIN user us";
-    $sql .= " ON fl.user_id = us.id";
+    $sql .= " ON st.user_id = us.id";
     $sql .= " JOIN face fa";
-    $sql .= " ON fl.face_id = fa.id";
-    $sql .= " WHERE username = ?";
+    $sql .= " ON st.face_id = fa.id";
+    $sql .= " WHERE us.username = ?";
     $sql .= " GROUP BY st.id";
     $sql .= " ORDER BY time_flipped DESC";
     $sql .= " LIMIT 10";
@@ -177,13 +182,16 @@ $app->get('/profile', function () use ($app) {
 
     $recentStreakResult = $app['db']->fetchAll($sql, $prepared);
 
-    $sql = "SELECT DISTINCT st.length, fa.name as face_name";
-    $sql .= " FROM streak st";
+    $sql = "SELECT us.username, count(*) as length, fa.name as face_name";
+    $sql .= " FROM flip fl";
+    $sql .= " JOIN streak st";
+    $sql .= " ON st.id = fl.streak_id";
     $sql .= " JOIN user us";
-    $sql .= " ON st.user_id = us.id";
+    $sql .= " ON us.id = st.user_id";
     $sql .= " JOIN face fa";
-    $sql .= " ON st.face_id = fa.id";
-    $sql .= " WHERE username = ?";
+    $sql .= " ON fa.id = st.face_id";
+    $sql .= " WHERE us.username = ?";
+    $sql .= " GROUP BY st.id";
     $sql .= " ORDER BY length DESC";
     $sql .= " LIMIT 10";
 
