@@ -221,15 +221,15 @@ $app->get('/flip', function () use ($app) {
     $sql = "SELECT COUNT(*) AS length, fa.name AS face_name";
     $sql .= " FROM";
     $sql .= " (";
-    $sql .= " SELECT st.id";
-    $sql .= " FROM user us";
-    $sql .= " LEFT JOIN streak st";
-    $sql .= " ON st.user_id = us.id";
-    $sql .= " LEFT JOIN flip fl";
-    $sql .= " ON fl.streak_id = st.id";
-    $sql .= " WHERE us.username = ?";
-    $sql .= " ORDER BY fl.time_flipped DESC";
-    $sql .= " LIMIT 1";
+    $sql .= "  SELECT st.id";
+    $sql .= "   FROM user us";
+    $sql .= "   LEFT JOIN streak st";
+    $sql .= "   ON st.user_id = us.id";
+    $sql .= "   LEFT JOIN flip fl";
+    $sql .= "   ON fl.streak_id = st.id";
+    $sql .= "   WHERE us.username = ?";
+    $sql .= "   ORDER BY fl.time_flipped DESC";
+    $sql .= "   LIMIT 1";
     $sql .= " ) stid";
     $sql .= " JOIN streak st";
     $sql .= " ON st.id = stid.id";
@@ -274,18 +274,23 @@ $app->post('/flippate', function() use($app) {
 
         $user = $app['session']->get('user');
 
-        $sql = "SELECT st.user_id, fl.streak_id, st.face_id";
-        $sql .= " FROM flip fl";
-        $sql .= " JOIN streak st";
-        $sql .= " ON fl.streak_id = st.id";
-        $sql .= " JOIN user us";
-        $sql .= " ON st.user_id = us.id";
-        $sql .= " WHERE us.username = ? ";
-        $sql .= " ORDER BY time_flipped DESC ";
-        $sql .= " LIMIT 10";
+        $sql = "SELECT id FROM user WHERE username = ?";
 
         $prepared = array(
             $user['username'],
+        );
+        $userResult = $app['db']->fetchAssoc($sql, $prepared);
+
+        $sql = "SELECT fl.streak_id, st.face_id";
+        $sql .= " FROM flip fl";
+        $sql .= " JOIN streak st";
+        $sql .= " ON fl.streak_id = st.id";
+        $sql .= " WHERE st.user_id = ?";
+        $sql .= " ORDER BY time_flipped DESC ";
+        $sql .= " LIMIT 1";
+
+        $prepared = array(
+            $userResult['id'],
         );
         $result = $app['db']->fetchAssoc($sql, $prepared);
 
@@ -295,7 +300,7 @@ $app->post('/flippate', function() use($app) {
 
             $sql = "INSERT INTO streak (user_id, face_id) VALUES (?, ?)";
             $prepared = array(
-                $result['user_id'],
+                $userResult['id'],
                 $newFaceResult['id'],
             );
             $app['db']->executeUpdate($sql, $prepared);
