@@ -273,27 +273,7 @@ $app->post('/flippate', function() use($app) {
         $newFaceResult = $app['db']->fetchAssoc($sql, $prepared);
 
         $user = $app['session']->get('user');
-        /*
-        // Get id associated with username
 
-        $sql = "SELECT id FROM user WHERE username = ?";
-        $prepared = array(
-            $user['username'],
-        );
-        $userResult = $app['db']->fetchAssoc($sql, $prepared);
-
-        // Get most recent flip associated with user ID
-
-        $sql = "SELECT face_id FROM flip ";
-        $sql .= " WHERE user_id = ? ";
-        $sql .= " ORDER BY time_flipped DESC ";
-        $sql .= " LIMIT 1";
-
-        $prepared = array(
-            $userResult['id'],
-        );
-        $flipResult = $app['db']->fetchAssoc($sql, $prepared);
-        */
         $sql = "SELECT st.user_id, fl.streak_id, st.face_id";
         $sql .= " FROM flip fl";
         $sql .= " JOIN streak st";
@@ -321,24 +301,7 @@ $app->post('/flippate', function() use($app) {
             $app['db']->executeUpdate($sql, $prepared);
             $result['streak_id'] = $app['db']->lastInsertId();
 
-        }/* else {
-            // make the streak longer
-            // don't need to make it longer anymore.
-
-            $streakId = $flipResult['streak_id'];
-            $sql = "SELECT length FROM streak WHERE id = ?";
-            $prepared = array(
-                $streakId,
-            );
-            $streakResult = $app['db']->fetchAssoc($sql, $prepared);
-
-            $sql = "UPDATE streak SET length = ? WHERE id = ?";
-            $prepared = array(
-                $streakId,
-            );
-            $app['db']->executeUpdate($sql, $prepared);
-
-        }*/
+        }
 
         // new flip and attach to streak*/
         $sql = "INSERT INTO flip (streak_id, time_flipped) VALUES (?, ?)";
