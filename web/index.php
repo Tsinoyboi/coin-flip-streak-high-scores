@@ -121,7 +121,7 @@ $app->get('/highscores', function () use ($app) {
     $sql .= " JOIN face fa";
     $sql .= " ON fa.id = st.face_id";
     $sql .= " GROUP BY st.id";
-    $sql .= " ORDER BY length DESC";
+    $sql .= " ORDER BY length DESC, micro_time DESC";
     $sql .= " LIMIT 10";
 
     $prepared = array(
@@ -145,7 +145,7 @@ $app->get('/profile', function () use ($app) {
         ));
     }
 
-    $sql = "SELECT fl.time_flipped, fa.name as face_name";
+    $sql = "SELECT fl.time_flipped, fl.micro_time, fa.name as face_name";
     $sql .= " FROM flip fl";
     $sql .= " JOIN streak st";
     $sql .= " ON fl.streak_id = st.id";
@@ -154,7 +154,7 @@ $app->get('/profile', function () use ($app) {
     $sql .= " JOIN face fa";
     $sql .= " ON st.face_id = fa.id";
     $sql .= " WHERE username = ?";
-    $sql .= " ORDER BY fl.time_flipped DESC";
+    $sql .= " ORDER BY fl.time_flipped DESC, fl.micro_time DESC";
     $sql .= " LIMIT 10";
 
     $prepared = array(
@@ -163,7 +163,7 @@ $app->get('/profile', function () use ($app) {
 
     $recentFlipResult = $app['db']->fetchAll($sql, $prepared);
 
-    $sql = "SELECT fl.time_flipped, count(*) as length, fa.name as face_name";
+    $sql = "SELECT fl.time_flipped, fl.micro_time, count(*) as length, fa.name as face_name";
     $sql .= " FROM flip fl";
     $sql .= " JOIN streak st";
     $sql .= " ON fl.streak_id = st.id";
@@ -173,7 +173,7 @@ $app->get('/profile', function () use ($app) {
     $sql .= " ON st.face_id = fa.id";
     $sql .= " WHERE us.username = ?";
     $sql .= " GROUP BY st.id";
-    $sql .= " ORDER BY fl.time_flipped DESC";
+    $sql .= " ORDER BY fl.time_flipped DESC, fl.micro_time DESC";
     $sql .= " LIMIT 10";
 
     $prepared = array(
@@ -228,7 +228,7 @@ $app->get('/flip', function () use ($app) {
     $sql .= "   LEFT JOIN flip fl";
     $sql .= "   ON fl.streak_id = st.id";
     $sql .= "   WHERE us.username = ?";
-    $sql .= "   ORDER BY fl.time_flipped DESC";
+    $sql .= "   ORDER BY fl.time_flipped DESC, fl.micro_time DESC";
     $sql .= "   LIMIT 1";
     $sql .= " ) stid";
     $sql .= " JOIN streak st";
@@ -286,7 +286,7 @@ $app->post('/flippate', function() use($app) {
         $sql .= " JOIN streak st";
         $sql .= " ON fl.streak_id = st.id";
         $sql .= " WHERE st.user_id = ?";
-        $sql .= " ORDER BY time_flipped DESC ";
+        $sql .= " ORDER BY fl.time_flipped DESC,  fl.micro_time DESC";
         $sql .= " LIMIT 1";
 
         $prepared = array(
@@ -309,11 +309,12 @@ $app->post('/flippate', function() use($app) {
         }
 
         // new flip and attach to streak*/
-        $sql = "INSERT INTO flip (streak_id, time_flipped) VALUES (?, ?)";
+        $sql = "INSERT INTO flip (streak_id, time_flipped, micro_time) VALUES (?, ?, ?)";
         $now = new \DateTime();
         $prepared = array(
             $result['streak_id'],
             $now->format('Y-m-d H:i:s'),
+            (microtime(true) - time(true)) * 1000,
         );
         $app['db']->executeUpdate($sql, $prepared);
 

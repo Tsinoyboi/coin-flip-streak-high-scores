@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS flip
     id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     streak_id BIGINT(20) UNSIGNED NOT NULL,
     time_flipped DATETIME NOT NULL,
+    micro_time INT(10) UNSIGNED NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY (id),
     FOREIGN KEY (streak_id) REFERENCES streak (id)
