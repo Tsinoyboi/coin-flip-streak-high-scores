@@ -21,7 +21,7 @@ ON st.user_id = us.id
 JOIN face fa
 ON st.face_id = fa.id
 WHERE username = 'b'
-ORDER BY fl.time_flipped DESC, fl.microtime
+ORDER BY fl.time_flipped DESC, fl.milliseconds
 LIMIT 10
 
 # recent streaks
@@ -51,7 +51,7 @@ JOIN face fa
 ON st.face_id = fa.id
 WHERE us.username = 'b'
 GROUP BY st.id
-ORDER BY fl.time_flipped DESC, fl.microtime
+ORDER BY fl.time_flipped DESC, fl.milliseconds
 LIMIT 10
 
 # user last flip
@@ -80,7 +80,7 @@ FROM
     LEFT JOIN flip fl
     ON fl.streak_id = st.id
     WHERE us.username = 'john'
-    ORDER BY fl.time_flipped DESC, fl.microtime
+    ORDER BY fl.time_flipped DESC, fl.milliseconds
     LIMIT 1
 ) stid
 JOIN streak st
