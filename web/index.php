@@ -109,6 +109,56 @@ $app->get('/register', function () use ($app) {
     ));
 });
 
+$app->post('/passwordchangiate', function (Request $request) use ($app) {
+    $username = $request->get('username');
+    $password = $request->get('password');
+    $confirm = $request->get('confirm');
+    if ($password !== $confirm) {
+        $user = $app['session']->get('user');
+        return $app['twig']->render('register.twig', array(
+            'username' => $username,
+            'sessionuser' => $user['username'],
+            'isConfirmed' => false,
+            'userExists' => false,
+        ));
+    }
+    $sql = "SELECT id FROM user WHERE username = ?";
+    $prepared = array(
+        $username,
+    );
+    $userResult = $app['db']->fetchAssoc($sql, $prepared);
+    $user = $app['session']->get('user');
+    if (false === $userResult) {
+        $sql = "INSERT INTO user (username, password) VALUES (?, ?)";
+        $prepared = array(
+            $username,
+            $password,
+        );
+        $app['db']->executeUpdate($sql, $prepared);
+        return $app['twig']->render('signin.twig', array(
+            'username' => $username,
+            'sessionuser' => $user['username'],
+            'isValid' => true,
+        ));
+    } else {
+        return $app['twig']->render('register.twig', array(
+            'username' => $username,
+            'sessionuser' => $user['username'],
+            'isConfirmed' => true,
+            'userExists' => true,
+        ));
+    }
+});
+
+$app->get('/changepassword', function () use ($app) {
+    $user = $app['session']->get('user');
+    return $app['twig']->render('changepassword.twig', array(
+        'sessionuser' => $user['username'],
+        'isConfirmed' => true,
+        'userExists' => false,
+    ));
+});
+
 $app->get('/highscores', function () use ($app) {
     $user = $app['session']->get('user');
 
