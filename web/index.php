@@ -142,9 +142,7 @@ $app->post('/passwordchangiate', function (Request $request) use ($app) {
         ));
     }
 
-
-    // if match then
-    // this is unreachable
+    // if match then change password
     if (false !== $userResult) {
         $sql = "UPDATE user";
         $sql .= " SET password = ?";
@@ -176,6 +174,20 @@ $app->get('/changepassword', function () use ($app) {
         'sessionuser' => $user['username'],
         'isConfirmed' => true,
         'isValid' => true,
+    ));
+});
+
+$app->get('/settings', function () use ($app) {
+    $user = $app['session']->get('user');
+    if ((null === $user) || (false === $user)) {
+        return $app['twig']->render('signin.twig', array(
+            'username' => $username,
+            'sessionuser' => $user['username'],
+            'isValid' => true,
+        ));
+    }
+    return $app['twig']->render('settings.twig', array(
+        'sessionuser' => $user['username'],
     ));
 });
 
