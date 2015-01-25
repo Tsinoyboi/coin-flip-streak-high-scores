@@ -60,11 +60,11 @@ $app->post('/authenticate', function (Request $request) use ($app) {
 });
 
 $app->post('/registrate', function (Request $request) use ($app) {
+    $user = $app['session']->get('user');
     $username = $request->get('username');
     $password = $request->get('password');
     $confirm = $request->get('confirm');
     if ($password !== $confirm) {
-        $user = $app['session']->get('user');
         return $app['twig']->render('register.twig', array(
             'username' => $username,
             'sessionuser' => $user['username'],
@@ -77,7 +77,6 @@ $app->post('/registrate', function (Request $request) use ($app) {
         $username,
     );
     $userResult = $app['db']->fetchAssoc($sql, $prepared);
-    $user = $app['session']->get('user');
     if (false === $userResult) {
         $sql = "INSERT INTO user (username, password) VALUES (?, ?)";
         $prepared = array(
@@ -110,42 +109,63 @@ $app->get('/register', function () use ($app) {
 });
 
 $app->post('/passwordchangiate', function (Request $request) use ($app) {
-    $username = $request->get('username');
-    $password = $request->get('password');
+    $user = $app['session']->get('user');
+    $oldPassword = $request->get('oldPassword');
+    $newPassword = $request->get('newPassword');
     $confirm = $request->get('confirm');
-    if ($password !== $confirm) {
-        $user = $app['session']->get('user');
-        return $app['twig']->render('register.twig', array(
+
+    // confirm idential passwords
+    if ($newPassword !== $confirm) {
+        return $app['twig']->render('changepassword.twig', array(
             'username' => $username,
             'sessionuser' => $user['username'],
             'isConfirmed' => false,
-            'userExists' => false,
-        ));
-    }
-    $sql = "SELECT id FROM user WHERE username = ?";
-    $prepared = array(
-        $username,
-    );
-    $userResult = $app['db']->fetchAssoc($sql, $prepared);
-    $user = $app['session']->get('user');
-    if (false === $userResult) {
-        $sql = "INSERT INTO user (username, password) VALUES (?, ?)";
-        $prepared = array(
-            $username,
-            $password,
-        );
-        $app['db']->executeUpdate($sql, $prepared);
-        return $app['twig']->render('signin.twig', array(
-            'username' => $username,
-            'sessionuser' => $user['username'],
             'isValid' => true,
         ));
-    } else {
-        return $app['twig']->render('register.twig', array(
+    }
+
+    // compare old password to database
+    $sql = "SELECT id FROM user WHERE username = ? AND password = ?";
+    $prepared = array(
+        $user['username'],
+        $oldPassword,
+    );
+    $userResult = $app['db']->fetchAssoc($sql, $prepared);
+
+    // if no match, then render page with error
+    if (false === $userResult) {
+        return $app['twig']->render('changepassword.twig', array(
             'username' => $username,
             'sessionuser' => $user['username'],
             'isConfirmed' => true,
-            'userExists' => true,
+            'isValid' => false,
+        ));
+    }
+
+
+    // if match then
+    // this is unreachable
+    if (false !== $userResult) {
+        $sql = "UPDATE user";
+        $sql .= " SET password = ?";
+        $sql .= " WHERE username = ?";
+        $prepared = array(
+            $newPassword,
+            $user['username'],
+        );
+        $app['db']->executeUpdate($sql, $prepared);
+        return $app['twig']->render('changepassword.twig', array(
+            'username' => $username,
+            'sessionuser' => $user['username'],
+            'isConfirmed' => true,
+            'isValid' => true,
+        ));
+    } else {
+        return $app['twig']->render('changepassword.twig', array(
+            'username' => $username,
+            'sessionuser' => $user['username'],
+            'isConfirmed' => true,
+            'isValid' => true,
         ));
     }
 });
@@ -155,7 +175,7 @@ $app->get('/changepassword', function () use ($app) {
     return $app['twig']->render('changepassword.twig', array(
         'sessionuser' => $user['username'],
         'isConfirmed' => true,
-        'userExists' => false,
+        'isValid' => true,
     ));
 });
 
