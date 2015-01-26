@@ -4,8 +4,21 @@
 
 {% block body %}
 
-<ul>
-  <li><a href="highscores">high scores</a></li>
-  <li><a href="flip">flip</a></li>
-</ul>
+<div class="btn-group-vertical" role="group">
+    <a type="button" class="btn btn-default" role="button" href="flip">
+        <span class="glyphicon glyphicon-play" aria-hidden="true"></span> Flip
+    </a>
+    <!-- {% if sessionuser | length > 0 %} -->
+    <a type="button" class="btn btn-default" role="button" href="profile">
+        <span class="glyphicon glyphicon-user" aria-hidden="true"></span> Profile
+    </a>
+    <!-- {% else %} -->
+    <a type="button" class="btn btn-default" role="button" href="signin">
+        <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> Sign in
+    </a>
+    <!-- {% endif %} -->
+    <a type="button" class="btn btn-default" role="button" href="highscores">
+        <span class="glyphicon glyphicon-stats" aria-hidden="true"></span> High Scores
+    </a>
+</div>
 {% endblock body %}

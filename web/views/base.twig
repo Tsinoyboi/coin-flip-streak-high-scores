@@ -33,41 +33,57 @@
             <div id="navbar" class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
                     <li {% if title == 'Home' %} class="active" {% endif %}>
-                        <a href="./">Home</a>
+                        <a href="./" aria-label="home">
+                            <span class="glyphicon glyphicon-home" aria-hidden="true"></span> Home
+                        </a>
                     </li>
                     <li {% if title == 'Flip' %} class="active" {% endif %}>
-                        <a href="flip">Flip</a>
+                        <a href="flip" aria-label="flip">
+                            <span class="glyphicon glyphicon-play" aria-hidden="true"></span> Flip
+                        </a>
                     </li>
                     <li {% if title == 'High Scores' %} class="active" {% endif %}>
-                        <a href="highscores">High Scores</a>
+                        <a href="highscores">
+                            <span class="glyphicon glyphicon-stats" aria-hidden="true"></span> High Scores
+                        </a>
                     </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                             <!-- {% if sessionuser | length > 0 %} -->
-                            {{sessionuser}}
+                            <span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{sessionuser}}
                             <!-- {% else %} -->
-                            Sign in
+                            <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> Sign in
                             <!-- {% endif %} -->
                              <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
-                                <!-- {% if sessionuser | length > 0 %} -->
+                            <!-- {% if sessionuser | length > 0 %} -->
                             <li>
-                                <a href="profile">Profile</a>
+                                <a href="profile" aria-label="profile">
+                                    <span class="glyphicon glyphicon-user" aria-hidden="true"></span> Profile
+                                </a>
                             </li>
                             <li>
-                                <a href="settings">Settings</a>
+                                <a href="settings" aria-label="settings">
+                                    <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Settings
+                                </a>
                             </li>
                             <li>
-                                <a href="signout">Sign out</a>
+                                <a href="signout" aria-label="sign out">
+                                    <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Sign out
+                                </a>
                             </li>
                             <!-- {% else %} -->
                             <li {% if title == 'Sign in' %} class="active" {% endif %}>
-                                <a href="signin">Sign in</a>
+                                <a href="signin" aria-label="sign in">
+                                    <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> Sign in
+                                </a>
                             </li>
                             <li {% if title == 'Register' %} class="active" {% endif %}>
-                                <a href="register">Register</a>
+                                <a href="register" aria-label="register">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Register
+                                </a>
                             </li>
                             <!-- {% endif %} -->
                         </ul>

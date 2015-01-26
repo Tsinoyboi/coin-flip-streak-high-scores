@@ -5,6 +5,8 @@
 {% block body %}
 <p>{{ streaklength }} {{ lastflip }}</p>
 <form action="flippate" method="POST">
-<input type="submit" class="btn btn-default" value="Flip">
+    <button type="submit" class="btn btn-default" value="Flip">
+        <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Flip
+    </button
 </form>
 {% endblock body %}
