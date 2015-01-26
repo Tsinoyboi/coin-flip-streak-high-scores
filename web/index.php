@@ -84,12 +84,14 @@ $app->post('/registrate', function (Request $request) use ($app) {
             $password,
         );
         $app['db']->executeUpdate($sql, $prepared);
+        // display sign in with username filled
         return $app['twig']->render('signin.twig', array(
             'username' => $username,
             'sessionuser' => $user['username'],
             'isValid' => true,
         ));
     } else {
+        // display register with user exists error
         return $app['twig']->render('register.twig', array(
             'username' => $username,
             'sessionuser' => $user['username'],
@@ -114,7 +116,7 @@ $app->post('/passwordchangiate', function (Request $request) use ($app) {
     $newPassword = $request->get('newPassword');
     $confirm = $request->get('confirm');
 
-    // confirm idential passwords
+    // confirm idential new passwords
     if ($newPassword !== $confirm) {
         return $app['twig']->render('changepassword.twig', array(
             'username' => $username,
@@ -132,18 +134,16 @@ $app->post('/passwordchangiate', function (Request $request) use ($app) {
     );
     $userResult = $app['db']->fetchAssoc($sql, $prepared);
 
-    // if no match, then render page with error
     if (false === $userResult) {
+        // if no match, then render page with error
         return $app['twig']->render('changepassword.twig', array(
             'username' => $username,
             'sessionuser' => $user['username'],
             'isConfirmed' => true,
             'isValid' => false,
         ));
-    }
-
-    // if match then change password
-    if (false !== $userResult) {
+    } else {
+        // if match, then update database and return to settings
         $sql = "UPDATE user";
         $sql .= " SET password = ?";
         $sql .= " WHERE username = ?";
@@ -152,24 +152,16 @@ $app->post('/passwordchangiate', function (Request $request) use ($app) {
             $user['username'],
         );
         $app['db']->executeUpdate($sql, $prepared);
-        return $app['twig']->render('changepassword.twig', array(
-            'username' => $username,
-            'sessionuser' => $user['username'],
-            'isConfirmed' => true,
-            'isValid' => true,
-        ));
-    } else {
-        return $app['twig']->render('changepassword.twig', array(
-            'username' => $username,
-            'sessionuser' => $user['username'],
-            'isConfirmed' => true,
-            'isValid' => true,
-        ));
+        return $app->redirect('./settings');
+        // no confirmation message?
     }
 });
 
 $app->get('/changepassword', function () use ($app) {
     $user = $app['session']->get('user');
+    if ((null === $user) || (false === $user)) {
+        return $app->redirect('./signin');
+    }
     return $app['twig']->render('changepassword.twig', array(
         'sessionuser' => $user['username'],
         'isConfirmed' => true,
@@ -180,11 +172,7 @@ $app->get('/changepassword', function () use ($app) {
 $app->get('/settings', function () use ($app) {
     $user = $app['session']->get('user');
     if ((null === $user) || (false === $user)) {
-        return $app['twig']->render('signin.twig', array(
-            'username' => $username,
-            'sessionuser' => $user['username'],
-            'isValid' => true,
-        ));
+        return $app->redirect('./signin');
     }
     return $app['twig']->render('settings.twig', array(
         'sessionuser' => $user['username'],
@@ -220,11 +208,7 @@ $app->get('/highscores', function () use ($app) {
 $app->get('/profile', function () use ($app) {
     $user = $app['session']->get('user');
     if ((null === $user) || (false === $user)) {
-        return $app['twig']->render('signin.twig', array(
-            'username' => $username,
-            'sessionuser' => $user['username'],
-            'isValid' => true,
-        ));
+        return $app->redirect('./signin');
     }
 
     $sql = "SELECT fl.time_flipped, fl.milliseconds, fa.name as face_name";
@@ -294,11 +278,7 @@ $app->get('/profile', function () use ($app) {
 $app->get('/flip', function () use ($app) {
     $user = $app['session']->get('user');
     if ((null === $user) || (false === $user)) {
-        return $app['twig']->render('signin.twig', array(
-            'username' => $username,
-            'sessionuser' => $user['username'],
-            'isValid' => true,
-        ));
+        return $app->redirect('./signin');
     }
     $sql = "SELECT COUNT(*) AS length, fa.name AS face_name";
     $sql .= " FROM";
@@ -337,71 +317,63 @@ $app->get('/flip', function () use ($app) {
 $app->post('/flippate', function() use($app) {
     $user = $app['session']->get('user');
     if ((null === $user) || (false === $user)) {
-        return $app['twig']->render('signin.twig', array(
-            'username' => $username,
-            'sessionuser' => $user['username'],
-        ));
+        return $app->redirect('./signin');
+    }
+    $coin = mt_rand(0, 1);
+    if (0 === $coin) {
+        $faceName = 'tails';
     } else {
-        $coin = mt_rand(0, 1);
-        if (0 === $coin) {
-            $faceName = 'tails';
-        } else {
-            $faceName = 'heads';
-        }
-        $sql = "SELECT id FROM face WHERE name = ?";
-        $prepared = array(
-            $faceName,
-        );
-        $newFaceResult = $app['db']->fetchAssoc($sql, $prepared);
-
+        $faceName = 'heads';
+    }
+    $sql = "SELECT id FROM face WHERE name = ?";
+    $prepared = array(
+        $faceName,
+    );
+    $newFaceResult = $app['db']->fetchAssoc($sql, $prepared);
         $user = $app['session']->get('user');
 
-        $sql = "SELECT id FROM user WHERE username = ?";
+    $sql = "SELECT id FROM user WHERE username = ?";
 
-        $prepared = array(
-            $user['username'],
-        );
-        $userResult = $app['db']->fetchAssoc($sql, $prepared);
+    $prepared = array(
+        $user['username'],
+    );
+    $userResult = $app['db']->fetchAssoc($sql, $prepared);
 
-        $sql = "SELECT fl.streak_id, st.face_id";
-        $sql .= " FROM flip fl";
-        $sql .= " JOIN streak st";
-        $sql .= " ON fl.streak_id = st.id";
-        $sql .= " WHERE st.user_id = ?";
-        $sql .= " ORDER BY fl.time_flipped DESC,  fl.milliseconds DESC";
-        $sql .= " LIMIT 1";
+    $sql = "SELECT fl.streak_id, st.face_id";
+    $sql .= " FROM flip fl";
+    $sql .= " JOIN streak st";
+    $sql .= " ON fl.streak_id = st.id";
+    $sql .= " WHERE st.user_id = ?";
+    $sql .= " ORDER BY fl.time_flipped DESC,  fl.milliseconds DESC";
+    $sql .= " LIMIT 1";
 
+    $prepared = array(
+        $userResult['id'],
+    );
+    $result = $app['db']->fetchAssoc($sql, $prepared);
+
+    if ((false === $result) || ($result['face_id'] !== $newFaceResult['id'])) {
+        // if no match or previous streak is other face, then start a new streak
+        $sql = "INSERT INTO streak (user_id, face_id) VALUES (?, ?)";
         $prepared = array(
             $userResult['id'],
-        );
-        $result = $app['db']->fetchAssoc($sql, $prepared);
-
-        if ((false === $result) || ($result['face_id'] !== $newFaceResult['id'])) {
-
-            // start a new streak
-
-            $sql = "INSERT INTO streak (user_id, face_id) VALUES (?, ?)";
-            $prepared = array(
-                $userResult['id'],
-                $newFaceResult['id'],
-            );
-            $app['db']->executeUpdate($sql, $prepared);
-            $result['streak_id'] = $app['db']->lastInsertId();
-
-        }
-
-        // new flip and attach to streak*/
-        $sql = "INSERT INTO flip (streak_id, time_flipped, milliseconds) VALUES (?, ?, ?)";
-        $now = new \DateTime();
-        $prepared = array(
-            $result['streak_id'],
-            $now->format('Y-m-d H:i:s'),
-            (microtime(true) - time(true)) * 1000,
+            $newFaceResult['id'],
         );
         $app['db']->executeUpdate($sql, $prepared);
-
-        return $app->redirect('./flip');
+        $result['streak_id'] = $app['db']->lastInsertId();
     }
+
+    // new flip and attach to streak
+    $sql = "INSERT INTO flip (streak_id, time_flipped, milliseconds) VALUES (?, ?, ?)";
+    $now = new \DateTime();
+    $prepared = array(
+        $result['streak_id'],
+        $now->format('Y-m-d H:i:s'),
+        (microtime(true) - time(true)) * 1000,
+    );
+    $app['db']->executeUpdate($sql, $prepared);
+
+    return $app->redirect('./flip');
 });
 
 $app->get('/signout', function () use ($app) {
