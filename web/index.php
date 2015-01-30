@@ -41,13 +41,13 @@ $app->get('/signin', function () use ($app) {
 $app->post('/authenticate', function (Request $request) use ($app) {
     $username = $request->get('username');
     $password = $request->get('password');
-    $sql = "SELECT password FROM user WHERE username = ?";
+    $sql = "SELECT hash FROM user WHERE username = ?";
     $prepared = array(
         $username,
     );
     $userResult = $app['db']->fetchAssoc($sql, $prepared);
 
-    if (false === password_verify($password, $userResult['password'])) {
+    if (false === password_verify($password, $userResult['hash'])) {
         $user = $app['session']->get('user');
         return $app['twig']->render('signin.twig', array(
             'username' => $username,
@@ -72,13 +72,13 @@ $app->post('/registrate', function (Request $request) use ($app) {
             'userExists' => false,
         ));
     }
-    $sql = "SELECT id FROM user WHERE username = ?";
+    $sql = "SELECT username FROM user WHERE username = ?";
     $prepared = array(
         $username,
     );
     $userResult = $app['db']->fetchAssoc($sql, $prepared);
     if (false === $userResult) {
-        $sql = "INSERT INTO user (username, password) VALUES (?, ?)";
+        $sql = "INSERT INTO user (username, hash) VALUES (?, ?)";
         $prepared = array(
             $username,
             password_hash($password, PASSWORD_BCRYPT, array('cost' => 12)),
@@ -127,13 +127,13 @@ $app->post('/passwordchangiate', function (Request $request) use ($app) {
     }
 
     // compare old password to database
-    $sql = "SELECT password FROM user WHERE username = ?";
+    $sql = "SELECT hash FROM user WHERE username = ?";
     $prepared = array(
         $user['username'],
     );
     $userResult = $app['db']->fetchAssoc($sql, $prepared);
 
-    if (false === password_verify($oldPassword, $userResult['password'])) {
+    if (false === password_verify($oldPassword, $userResult['hash'])) {
         // if no match, then render page with error
         return $app['twig']->render('changepassword.twig', array(
             'username' => $username,
@@ -144,7 +144,7 @@ $app->post('/passwordchangiate', function (Request $request) use ($app) {
     } else {
         // if match, then update database and return to settings
         $sql = "UPDATE user";
-        $sql .= " SET password = ?";
+        $sql .= " SET hash = ?";
         $sql .= " WHERE username = ?";
         $prepared = array(
             password_hash($newPassword, PASSWORD_BCRYPT, array('cost' => 12)),
