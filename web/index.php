@@ -41,13 +41,13 @@ $app->get('/signin', function () use ($app) {
 $app->post('/authenticate', function (Request $request) use ($app) {
     $username = $request->get('username');
     $password = $request->get('password');
-    $sql = "SELECT id FROM user WHERE username = ? AND password = ?";
+    $sql = "SELECT password FROM user WHERE username = ?";
     $prepared = array(
         $username,
-        $password,
     );
     $userResult = $app['db']->fetchAssoc($sql, $prepared);
-    if (false === $userResult) {
+
+    if (false === password_verify($password, $userResult['password'])) {
         $user = $app['session']->get('user');
         return $app['twig']->render('signin.twig', array(
             'username' => $username,
@@ -81,7 +81,7 @@ $app->post('/registrate', function (Request $request) use ($app) {
         $sql = "INSERT INTO user (username, password) VALUES (?, ?)";
         $prepared = array(
             $username,
-            $password,
+            password_hash($password, PASSWORD_BCRYPT, array('cost' => 12)),
         );
         $app['db']->executeUpdate($sql, $prepared);
         // display sign in with username filled
@@ -127,14 +127,13 @@ $app->post('/passwordchangiate', function (Request $request) use ($app) {
     }
 
     // compare old password to database
-    $sql = "SELECT id FROM user WHERE username = ? AND password = ?";
+    $sql = "SELECT password FROM user WHERE username = ?";
     $prepared = array(
         $user['username'],
-        $oldPassword,
     );
     $userResult = $app['db']->fetchAssoc($sql, $prepared);
 
-    if (false === $userResult) {
+    if (false === password_verify($oldPassword, $userResult['password'])) {
         // if no match, then render page with error
         return $app['twig']->render('changepassword.twig', array(
             'username' => $username,
@@ -148,7 +147,7 @@ $app->post('/passwordchangiate', function (Request $request) use ($app) {
         $sql .= " SET password = ?";
         $sql .= " WHERE username = ?";
         $prepared = array(
-            $newPassword,
+            password_hash($newPassword, PASSWORD_BCRYPT, array('cost' => 12)),
             $user['username'],
         );
         $app['db']->executeUpdate($sql, $prepared);
