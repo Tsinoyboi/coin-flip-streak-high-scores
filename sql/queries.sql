@@ -1,3 +1,26 @@
+# user last flip
+
+SELECT fa.name as face_name
+FROM user us
+LEFT JOIN flip fl
+ON us.id = fl.user_id
+JOIN face fa
+ON fl.face_id = fa.id
+WHERE us.username = 'john'
+ORDER BY fl.time_flipped DESC, fl.microseconds
+LIMIT 1
+
+-- new high scores
+
+ql = "SELECT us.username, fa.name as face_name";
+$sql .= " FROM flip fl";
+$sql .= " JOIN user us";
+$sql .= " ON us.id = fl.user_id";
+$sql .= " JOIN face fa";
+$sql .= " ON fa.id = fl.face_id";
+$sql .= " ORDER BY length DESC, microseconds DESC";
+$sql .= " LIMIT 10";
+
 # recent flips
 
 SELECT fl.time_flipped, fa.name as face_name
@@ -53,41 +76,3 @@ WHERE us.username = 'b'
 GROUP BY st.id
 ORDER BY fl.time_flipped DESC, fl.microseconds
 LIMIT 10
-
-# user last flip
-
-SELECT fa.name as face_name
- FROM user us
- LEFT JOIN flip fl
- ON us.id = fl.user_id
- JOIN face fa
- ON fl.face_id = fa.id
- WHERE us.username = 'john'
- ORDER BY fl.time_flipped DESC, fl.microseconds
- LIMIT 1
-
-
--- old high scores
-
-SELECT DISTINCT us.username, st.length, fa.name AS face_name
- FROM streak st
- JOIN user us
- ON st.user_id = us.id
- JOIN face fa
- ON st.face_id = fa.id
- ORDER BY length DESC
- LIMIT 10
-
--- new high scores
-
-SELECT us.username, count(*) as length, fa.name as face_name
- FROM flip fl
- JOIN streak st
- ON st.id = fl.streak_id
- JOIN user us
- ON us.id = st.user_id
- JOIN face fa
- ON fa.id = st.face_id
- GROUP BY st.id
- ORDER BY length DESC
- LIMIT 10

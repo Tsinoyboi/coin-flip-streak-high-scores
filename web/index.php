@@ -181,16 +181,13 @@ $app->get('/settings', function () use ($app) {
 $app->get('/highscores', function () use ($app) {
     $user = $app['session']->get('user');
 
-    $sql = "SELECT us.username, count(*) as length, fa.name as face_name";
+    $sql = "SELECT us.username, fa.name as face_name";
     $sql .= " FROM flip fl";
-    $sql .= " JOIN streak st";
-    $sql .= " ON st.id = fl.streak_id";
     $sql .= " JOIN user us";
-    $sql .= " ON us.id = st.user_id";
+    $sql .= " ON us.id = fl.user_id";
     $sql .= " JOIN face fa";
-    $sql .= " ON fa.id = st.face_id";
-    $sql .= " GROUP BY st.id";
-    $sql .= " ORDER BY length DESC, microseconds DESC";
+    $sql .= " ON fa.id = fl.face_id";
+    $sql .= " ORDER BY time_flipped DESC, microseconds DESC";
     $sql .= " LIMIT 10";
 
     $prepared = array(
