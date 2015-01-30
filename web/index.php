@@ -190,7 +190,7 @@ $app->get('/highscores', function () use ($app) {
     $sql .= " JOIN face fa";
     $sql .= " ON fa.id = st.face_id";
     $sql .= " GROUP BY st.id";
-    $sql .= " ORDER BY length DESC, milliseconds DESC";
+    $sql .= " ORDER BY length DESC, microseconds DESC";
     $sql .= " LIMIT 10";
 
     $prepared = array(
@@ -210,7 +210,7 @@ $app->get('/profile', function () use ($app) {
         return $app->redirect('./signin');
     }
 
-    $sql = "SELECT fl.time_flipped, fl.milliseconds, fa.name as face_name";
+    $sql = "SELECT fl.time_flipped, fl.microseconds, fa.name as face_name";
     $sql .= " FROM flip fl";
     $sql .= " JOIN streak st";
     $sql .= " ON fl.streak_id = st.id";
@@ -219,7 +219,7 @@ $app->get('/profile', function () use ($app) {
     $sql .= " JOIN face fa";
     $sql .= " ON st.face_id = fa.id";
     $sql .= " WHERE username = ?";
-    $sql .= " ORDER BY fl.time_flipped DESC, fl.milliseconds DESC";
+    $sql .= " ORDER BY fl.time_flipped DESC, fl.microseconds DESC";
     $sql .= " LIMIT 10";
 
     $prepared = array(
@@ -228,7 +228,7 @@ $app->get('/profile', function () use ($app) {
 
     $recentFlipResult = $app['db']->fetchAll($sql, $prepared);
 
-    $sql = "SELECT fl.time_flipped, fl.milliseconds, count(*) as length, fa.name as face_name";
+    $sql = "SELECT fl.time_flipped, fl.microseconds, count(*) as length, fa.name as face_name";
     $sql .= " FROM flip fl";
     $sql .= " JOIN streak st";
     $sql .= " ON fl.streak_id = st.id";
@@ -238,7 +238,7 @@ $app->get('/profile', function () use ($app) {
     $sql .= " ON st.face_id = fa.id";
     $sql .= " WHERE us.username = ?";
     $sql .= " GROUP BY st.id";
-    $sql .= " ORDER BY fl.time_flipped DESC, fl.milliseconds DESC";
+    $sql .= " ORDER BY fl.time_flipped DESC, fl.microseconds DESC";
     $sql .= " LIMIT 10";
 
     $prepared = array(
@@ -279,26 +279,15 @@ $app->get('/flip', function () use ($app) {
     if ((null === $user) || (false === $user)) {
         return $app->redirect('./signin');
     }
-    $sql = "SELECT COUNT(*) AS length, fa.name AS face_name";
-    $sql .= " FROM";
-    $sql .= " (";
-    $sql .= "  SELECT st.id";
-    $sql .= "   FROM user us";
-    $sql .= "   LEFT JOIN streak st";
-    $sql .= "   ON st.user_id = us.id";
-    $sql .= "   LEFT JOIN flip fl";
-    $sql .= "   ON fl.streak_id = st.id";
-    $sql .= "   WHERE us.username = ?";
-    $sql .= "   ORDER BY fl.time_flipped DESC, fl.milliseconds DESC";
-    $sql .= "   LIMIT 1";
-    $sql .= " ) stid";
-    $sql .= " JOIN streak st";
-    $sql .= " ON st.id = stid.id";
+    $sql = "SELECT fa.name as face_name";
+    $sql .= " FROM user us";
+    $sql .= " LEFT JOIN flip fl";
+    $sql .= " ON us.id = fl.user_id";
     $sql .= " JOIN face fa";
-    $sql .= " ON fa.id = st.face_id";
-    $sql .= " JOIN flip fl";
-    $sql .= " ON fl.streak_id = st.id";
-    $sql .= " GROUP BY fa.name";
+    $sql .= " ON fl.face_id = fa.id";
+    $sql .= " WHERE us.username = ?";
+    $sql .= " ORDER BY fl.time_flipped DESC, fl.microseconds";
+    $sql .= " LIMIT 1";
 
     $prepared = array(
         $user['username']
@@ -309,7 +298,7 @@ $app->get('/flip', function () use ($app) {
     return $app['twig']->render('flip.twig', array(
         'sessionuser' => $user['username'],
         'lastflip' => $result['face_name'],
-        'streaklength' => $result['length'],
+        'streaklength' => "",
     ));
 });
 
@@ -329,7 +318,6 @@ $app->post('/flippate', function() use($app) {
         $faceName,
     );
     $newFaceResult = $app['db']->fetchAssoc($sql, $prepared);
-        $user = $app['session']->get('user');
 
     $sql = "SELECT id FROM user WHERE username = ?";
 
@@ -338,37 +326,20 @@ $app->post('/flippate', function() use($app) {
     );
     $userResult = $app['db']->fetchAssoc($sql, $prepared);
 
-    $sql = "SELECT fl.streak_id, st.face_id";
-    $sql .= " FROM flip fl";
-    $sql .= " JOIN streak st";
-    $sql .= " ON fl.streak_id = st.id";
-    $sql .= " WHERE st.user_id = ?";
-    $sql .= " ORDER BY fl.time_flipped DESC,  fl.milliseconds DESC";
-    $sql .= " LIMIT 1";
+    // store new flip
+    $sql = "INSERT INTO flip (user_id, face_id, time_flipped, microseconds) VALUES (?, ?, ?, ?)";
 
+    // record times
+    $now = new \DateTime();
+    $micro_time = microtime(true);
+    $floored = floor($micro_time);
+    $microseconds = round(($micro_time - $floored) * 1000000);
+    //
     $prepared = array(
         $userResult['id'],
-    );
-    $result = $app['db']->fetchAssoc($sql, $prepared);
-
-    if ((false === $result) || ($result['face_id'] !== $newFaceResult['id'])) {
-        // if no match or previous streak is other face, then start a new streak
-        $sql = "INSERT INTO streak (user_id, face_id) VALUES (?, ?)";
-        $prepared = array(
-            $userResult['id'],
-            $newFaceResult['id'],
-        );
-        $app['db']->executeUpdate($sql, $prepared);
-        $result['streak_id'] = $app['db']->lastInsertId();
-    }
-
-    // new flip and attach to streak
-    $sql = "INSERT INTO flip (streak_id, time_flipped, milliseconds) VALUES (?, ?, ?)";
-    $now = new \DateTime();
-    $prepared = array(
-        $result['streak_id'],
+        $newFaceResult['id'],
         $now->format('Y-m-d H:i:s'),
-        (microtime(true) - time(true)) * 1000,
+        $microseconds,
     );
     $app['db']->executeUpdate($sql, $prepared);
 

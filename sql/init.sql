@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS flip
     user_id BIGINT(20) UNSIGNED NOT NULL,
     face_id BIGINT(20) UNSIGNED NOT NULL,
     time_flipped DATETIME NOT NULL,
-    milliseconds INT(10) UNSIGNED NOT NULL,
+    microseconds INT(10) UNSIGNED NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY (id),
     FOREIGN KEY (user_id) REFERENCES user (id),
