@@ -209,12 +209,10 @@ $app->get('/profile', function () use ($app) {
 
     $sql = "SELECT fl.time_flipped, fl.microseconds, fa.name as face_name";
     $sql .= " FROM flip fl";
-    $sql .= " JOIN streak st";
-    $sql .= " ON fl.streak_id = st.id";
     $sql .= " JOIN user us";
-    $sql .= " ON st.user_id = us.id";
+    $sql .= " ON fl.user_id = us.id";
     $sql .= " JOIN face fa";
-    $sql .= " ON st.face_id = fa.id";
+    $sql .= " ON fl.face_id = fa.id";
     $sql .= " WHERE username = ?";
     $sql .= " ORDER BY fl.time_flipped DESC, fl.microseconds DESC";
     $sql .= " LIMIT 10";
@@ -225,16 +223,13 @@ $app->get('/profile', function () use ($app) {
 
     $recentFlipResult = $app['db']->fetchAll($sql, $prepared);
 
-    $sql = "SELECT fl.time_flipped, fl.microseconds, count(*) as length, fa.name as face_name";
+    $sql = "SELECT fl.time_flipped, fl.microseconds, fa.name as face_name";
     $sql .= " FROM flip fl";
-    $sql .= " JOIN streak st";
-    $sql .= " ON fl.streak_id = st.id";
     $sql .= " JOIN user us";
-    $sql .= " ON st.user_id = us.id";
+    $sql .= " ON fl.user_id = us.id";
     $sql .= " JOIN face fa";
-    $sql .= " ON st.face_id = fa.id";
-    $sql .= " WHERE us.username = ?";
-    $sql .= " GROUP BY st.id";
+    $sql .= " ON fl.face_id = fa.id";
+    $sql .= " WHERE username = ?";
     $sql .= " ORDER BY fl.time_flipped DESC, fl.microseconds DESC";
     $sql .= " LIMIT 10";
 
@@ -244,17 +239,14 @@ $app->get('/profile', function () use ($app) {
 
     $recentStreakResult = $app['db']->fetchAll($sql, $prepared);
 
-    $sql = "SELECT us.username, count(*) as length, fa.name as face_name";
+    $sql = "SELECT fa.name as face_name";
     $sql .= " FROM flip fl";
-    $sql .= " JOIN streak st";
-    $sql .= " ON st.id = fl.streak_id";
     $sql .= " JOIN user us";
-    $sql .= " ON us.id = st.user_id";
+    $sql .= " ON fl.user_id = us.id";
     $sql .= " JOIN face fa";
-    $sql .= " ON fa.id = st.face_id";
-    $sql .= " WHERE us.username = ?";
-    $sql .= " GROUP BY st.id";
-    $sql .= " ORDER BY length DESC";
+    $sql .= " ON fl.face_id = fa.id";
+    $sql .= " WHERE username = ?";
+    $sql .= " ORDER BY fl.time_flipped DESC, fl.microseconds DESC";
     $sql .= " LIMIT 10";
 
     $prepared = array(

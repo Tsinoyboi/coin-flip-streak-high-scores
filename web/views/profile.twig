@@ -15,7 +15,7 @@
             </tr>
             {% for recentFlipResult in recentFlipResult %}
                 <tr>
-                    <td>{{ recentFlipResult['time_flipped'] }}.{{ recentFlipResult['milliseconds'] }}</td>
+                    <td>{{ recentFlipResult['time_flipped'] }}.{{ recentFlipResult['microseconds'] }}</td>
                     <td>{{ recentFlipResult['face_name'] }}</td>
                 </tr>
             {% endfor %}
@@ -31,8 +31,8 @@
             </tr>
             {% for recentStreakResult in recentStreakResult %}
             <tr>
-                <td>{{ recentStreakResult['time_flipped'] }}.{{ recentStreakResult['milliseconds'] }}</td>
-                <td>{{ recentStreakResult['length'] }}</td>
+                <td>{{ recentStreakResult['time_flipped'] }}.{{ recentStreakResult['microseconds'] }}</td>
+                <td> - </td>
                 <td>{{ recentStreakResult['face_name'] }}</td>
             </tr>
             {% endfor %}
@@ -47,7 +47,7 @@
             </tr>
             {% for bestStreakResult in bestStreakResult %}
             <tr>
-                <td>{{ bestStreakResult['length'] }}</td>
+                <td> - </td>
                 <td>{{ bestStreakResult['face_name'] }}</td>
             </tr>
             {% endfor %}
