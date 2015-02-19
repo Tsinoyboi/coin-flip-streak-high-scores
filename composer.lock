@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "9be1bac782e8400dcd9c0acd6a9770b1",
+    "hash": "2f32ec197b2ee0ee633347ea79639fb3",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -1880,22 +1880,22 @@
         },
         {
             "name": "symfony/security",
-            "version": "v2.6.1",
+            "version": "v2.6.3",
             "target-dir": "Symfony/Component/Security",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Security.git",
-                "reference": "95579d91a123f8b2af6709bcf1e4b2157a65c6ce"
+                "reference": "73461e3f87d84dd07792abbb7acfd7c1cd99aefd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Security/zipball/95579d91a123f8b2af6709bcf1e4b2157a65c6ce",
-                "reference": "95579d91a123f8b2af6709bcf1e4b2157a65c6ce",
+                "url": "https://api.github.com/repos/symfony/Security/zipball/73461e3f87d84dd07792abbb7acfd7c1cd99aefd",
+                "reference": "73461e3f87d84dd07792abbb7acfd7c1cd99aefd",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3",
-                "symfony/event-dispatcher": "~2.1",
+                "symfony/event-dispatcher": "~2.2",
                 "symfony/http-foundation": "~2.1",
                 "symfony/http-kernel": "~2.4"
             },
@@ -1910,9 +1910,11 @@
                 "doctrine/dbal": "~2.2",
                 "ircmaxell/password-compat": "~1.0",
                 "psr/log": "~1.0",
-                "symfony/expression-language": "~2.4",
+                "symfony/expression-language": "~2.6",
+                "symfony/intl": "~2.3",
                 "symfony/routing": "~2.2",
-                "symfony/validator": "~2.5"
+                "symfony/translation": "~2.0,>=2.0.5",
+                "symfony/validator": "~2.5,>=2.5.5"
             },
             "suggest": {
                 "doctrine/dbal": "For using the built-in ACL implementation",
@@ -1950,7 +1952,7 @@
             ],
             "description": "Symfony Security Component",
             "homepage": "http://symfony.com",
-            "time": "2014-12-02 20:19:20"
+            "time": "2015-01-07 14:31:37"
         },
         {
             "name": "symfony/serializer",

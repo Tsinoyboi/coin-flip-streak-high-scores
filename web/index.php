@@ -181,14 +181,14 @@ $app->get('/settings', function () use ($app) {
 $app->get('/highscores', function () use ($app) {
     $user = $app['session']->get('user');
 
-    $sql = "SELECT us.username, fa.name as face_name";
-    $sql .= " FROM flip fl";
-    $sql .= " JOIN user us";
-    $sql .= " ON us.id = fl.user_id";
-    $sql .= " JOIN face fa";
-    $sql .= " ON fa.id = fl.face_id";
-    $sql .= " ORDER BY time_flipped DESC, microseconds DESC";
-    $sql .= " LIMIT 10";
+    $sql = "SELECT user.username, face.name AS face_name";
+    $sql .= " FROM flip";
+    $sql .= " JOIN user";
+    $sql .= " ON user.id = flip.user_id";
+    $sql .= " JOIN face";
+    $sql .= " ON face.id = flip.face_id";
+    $sql .= " ORDER BY user.username ASC, flip.time_flipped ASC, flip.microseconds ASC";
+    $sql .= " Limit 10";
 
     $prepared = array(
     );
@@ -213,7 +213,7 @@ $app->get('/profile', function () use ($app) {
     $sql .= " ON fl.user_id = us.id";
     $sql .= " JOIN face fa";
     $sql .= " ON fl.face_id = fa.id";
-    $sql .= " WHERE username = ?";
+    $sql .= " WHERE us.username = ?";
     $sql .= " ORDER BY fl.time_flipped DESC, fl.microseconds DESC";
     $sql .= " LIMIT 10";
 
@@ -229,7 +229,7 @@ $app->get('/profile', function () use ($app) {
     $sql .= " ON fl.user_id = us.id";
     $sql .= " JOIN face fa";
     $sql .= " ON fl.face_id = fa.id";
-    $sql .= " WHERE username = ?";
+    $sql .= " WHERE us.username = ?";
     $sql .= " ORDER BY fl.time_flipped DESC, fl.microseconds DESC";
     $sql .= " LIMIT 10";
 
@@ -245,7 +245,7 @@ $app->get('/profile', function () use ($app) {
     $sql .= " ON fl.user_id = us.id";
     $sql .= " JOIN face fa";
     $sql .= " ON fl.face_id = fa.id";
-    $sql .= " WHERE username = ?";
+    $sql .= " WHERE us.username = ?";
     $sql .= " ORDER BY fl.time_flipped DESC, fl.microseconds DESC";
     $sql .= " LIMIT 10";
 
